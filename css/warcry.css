@@ -229,7 +229,7 @@ a:focus {
 }
 
 #main .breadcrumbs {
-	font-size: 85%;
+	/*font-size: 85%;*/
 	padding-top: 8px;
 	padding-bottom: 7px;
 	background-color: #eee;
@@ -237,6 +237,10 @@ a:focus {
 
 .panel-body {
 	padding: 12px;
+}
+
+.panel-body-bare {
+	padding: 0;
 }
 
 #article ul, .news ul {
@@ -295,7 +299,7 @@ a:focus {
 }
 
 #sidebar .panel {
-	font-size: 85%;
+	/*font-size: 85%;*/
 }
 
 #sidebar .panel-heading {
@@ -306,7 +310,7 @@ a:focus {
 .panel-footer {
 	padding: 10px 12px;
 	border-top: 0;
-	font-size: 85%;
+	/*font-size: 85%;*/
 	border-bottom-right-radius: 7px;
 	border-bottom-left-radius: 7px;
 	background-color: #eee;
@@ -599,7 +603,7 @@ a.blue:hover { color: white; }
 .img-caption {
 	text-align: center;
 	font-style: italic;
-	font-size: 85%;
+	/*font-size: 85%;*/
 	padding: 5px 0 0 0;
 }
 
@@ -648,10 +652,11 @@ a.blue:hover { color: white; }
 
 .flex-item {
     margin: 5px;
+    /*border-radius: 5px;*/
 }
 
-#gallery .flex-item {
-    width: 130px;
+#gallery .flex-item, .comics .flex-item {
+    width: 150px;
 }
 
 .flex-item-shaded {
@@ -664,6 +669,8 @@ a.blue:hover { color: white; }
 
 .card-image {
 	width: 100%;
+	/*border-top-left-radius: 5px;
+	border-top-right-radius: 5px;*/
 }
 
 .card-body {
@@ -772,6 +779,11 @@ a.blue:hover { color: white; }
 	margin: 0 auto;
 }
 
+/*.embed-responsive {
+	margin-left: -12px;
+	margin-right: -12px;
+}*/
+
 #article div + div {
 	margin-top: 15px;
 }
@@ -838,14 +850,18 @@ a.blue:hover { color: white; }
 }
 
 /* streams */
-#streams .flex-item {
+#streams .stream-image, .stream-standalone .stream-image {
 	display: inline-block;
     position: relative;
 }
 
-#streams .viewers {
+#streams .flex-item {
+	width: 260px;
+}
+
+.viewers {
     position: absolute;
-    top: 87px;
+    bottom: 0;
     right: 0;
     padding: 4px 4px 2px 4px;
     background: white;
@@ -853,13 +869,29 @@ a.blue:hover { color: white; }
     filter:alpha(opacity=75);
 }
 
-#streams .flex-item {
-	width: 200px;
+.stream-standalone, .stream-standalone .stream-image {
+	width: 100%;
 }
 
-#streams .card-image {
-	min-height: 112px;
+/*.stream-standalone .viewers {
+    top: 135px;
+}*/
+
+.stream-standalone .title {
+	padding: 5px 10px;
 }
+
+.stream-standalone .title p {
+	margin-bottom: 7px;
+}
+
+.stream-standalone .title p:last-child {
+	margin-bottom: 2px;
+}
+
+/*#streams .card-image {
+	min-height: 112px;
+}*/
 
 .stream {
 	padding: 0;
@@ -883,4 +915,14 @@ a.blue:hover { color: white; }
 	width: 100px;
 	height: auto;
 	margin-bottom: 15px;
+}
+
+/* comics */
+h3:first-child, h4:first-child {
+	margin-top: 0;
+}
+
+.comics-issue .card-image {
+	height: 231px;
+	width: auto;
 }

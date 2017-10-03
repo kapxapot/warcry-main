@@ -30,15 +30,19 @@ class Builder {
 	}
 	
 	private function FormatDate($date) {
+		return strftime($this->settings->date_format, $date);
+	}
+	
+	private function FormatDateTime($date) {
 		return strftime($this->settings->time_format, $date);
 	}
 
 	function BuildNews($row, $full = false) {
 		$id = $row['tid'];
 		$title = DecodeTopicTitle($row['title']);
-		
+
 		$post = BeforeParsePost($row['post'], $id, $full);
-		$post = $this->forum_parser->convert(array("TEXT" => $post, "CODE" => 1));
+		$post = $this->forum_parser->convert([ "TEXT" => $post, "CODE" => 1 ]);
 		$post = AfterParsePost($post);
 
 		$game = $this->db->GetGameByForumId($row['forum_id']);
@@ -48,33 +52,33 @@ class Builder {
 
 		foreach ($tag_rows as $tag_row) {
 			$text = $tag_row['tag_text'];
-			$tags[] = array("text" => $text, "url" => $this->router->ForumTag($text));
+			$tags[] = [ "text" => $text, "url" => $this->router->ForumTag($text) ];
 		}
 
-		return array(
+		return [
 			"title" => $title,
 			"game" => $game,
 			"posts" => $row['posts'],
-			"start_date" => $this->FormatDate($row['start_date']),
+			"start_date" => $this->FormatDateTime($row['start_date']),
 			"starter_url" => $this->router->ForumUser($row['starter_id']),
 			"starter_name" => $row['starter_name'],
 			"tags" => $tags,
 			"text" => $post,
 			"url" => $this->router->News($id),
-			"forum_url" => $this->router->ForumTopic($id)
-		);
+			"forum_url" => $this->router->ForumTopic($id),
+		];
 	}
 
 	function BuildNewsLink($row, $game) {
 		$id = $row['tid'];
 		$title = DecodeTopicTitle($row['title']);
 
-		return array(
+		return [
 			"title" => $title,
 			"game" => $game,
 			"posts" => $row['posts'],
 			"url" => $this->router->News($id),
-		);
+		];
 	}
 	
 	private function BuildForumTopic($row, $game = null) {
@@ -84,12 +88,12 @@ class Builder {
 			$game = $this->db->GetGameByForumId($row['forum_id']);
 		}
 	
-		return array(
+		return [
 			"title" => $title,
 			"url" => $this->router->ForumTopic($row['tid'], true),
 			"game" => $game,
-			"posts" => $row['posts']
-		);
+			"posts" => $row['posts'],
+		];
 	}
 	
 	function BuildForumTopics($game = null) {
@@ -116,14 +120,17 @@ class Builder {
 	
 	private function BuildArticle($row, $game = null) {
 		if ($game == null) {
-			$game = array("alias" => $row['game_alias'], "name" => $row['game_name']);
+			$game = [
+				"alias" => $row['game_alias'],
+				"name" => $row['game_name'],
+			];
 		}
 
-		return array(
+		return [
 			"url" => $this->router->Article($row['name_en'], $row['cat']),
 			"title" => $row['name_ru'],
-			"game" => $game
-		);
+			"game" => $game,
+		];
 	}
 	
 	function BuildArticles($game = null, $except_article_id = null) {
@@ -164,26 +171,6 @@ class Builder {
 		return $menu;
 	}
 
-	private function Kartinok($num) {
-		$result = "картинок";
-
-		if ($num < 5 || $num > 20) {
-			switch ($num % 10) {
-				case 1:
-					$result = "картинка";
-					break;
-
-				case 2:
-				case 3:
-				case 4:
-					$result = "картинки";
-					break;
-			}
-		}
-		
-		return $result;
-	}
-
 	function BuildGalleryAuthor($row, $short = false) {
 		$author = $row;
 
@@ -199,7 +186,7 @@ class Builder {
 				$author['last_thumb_url'] = $this->router->GalleryThumbImg($last);
 			}
 	
-			$author['pictures_str'] = $this->Kartinok($author['count']);
+			$author['pictures_str'] = $this->cases->caseForNumber('картинка', $author['count']);
 			
 			if ($author['member_id'] > 0) {
 				$author['member_url'] = $this->router->ForumUser($author['member_id']);
@@ -252,7 +239,6 @@ class Builder {
 			$picture['page_url'] = $this->router->GalleryPicture($author, $id);
 		}
 		
-		// prev/next pictures
 		$prev = $this->db->GetGalleryPicturePrev($id);
 		$next = $this->db->GetGalleryPictureNext($id);
 		
@@ -275,7 +261,7 @@ class Builder {
 			'current' => $current,
 			'url' => $this->router->Page($base_url, $page),
 			'label' => ($label != null) ? $label : $page,
-			'title' => ($title != null) ? $title : "Страница {$page}"
+			'title' => ($title != null) ? $title : "Страница {$page}",
 		];
 	}
 
@@ -328,39 +314,18 @@ class Builder {
 		if (!$stream['stream_alias']) {
 			$stream['stream_alias'] = $id;
 		}
-		
+
 		$stream['page_url'] = $this->router->Stream($stream['stream_alias']);
-		$stream['viewers'] = 0;
-		$stream['online'] = 0;
 
 		switch ($stream['type']) {
 			// Twitch
 			case 1:
-				$stream['img_url'] = "http://static-cdn.jtvnw.net/previews/live_user_{$id}-320x180.jpg";
+				//$stream['img_url'] = "http://static-cdn.jtvnw.net/previews/live_user_{$id}-320x180.jpg";
+				$stream['img_url'] = "https://static-cdn.jtvnw.net/previews-ttv/live_user_{$id}-320x180.jpg";
+				$stream['large_img_url'] = "https://static-cdn.jtvnw.net/previews-ttv/live_user_{$id}-640x360.jpg";
+				
 				$stream['twitch'] = true;
 				$stream['stream_url'] = "http://twitch.tv/{$id}";
-				
-				$data = $this->getTwitchStreamData($id);
-				$json = json_decode($data, true);
-				
-				$stream['data'] = $data;
-				
-				if (isset($json['streams'][0])) {
-					$s = $json['streams'][0];
-
-					$stream['online'] = 1;
-					$stream['game'] = $s['game'];
-					$stream['viewers'] = $s['viewers'];
-					
-					if (isset($s['channel'])) {
-						$ch = $s['channel'];
-
-						$stream['title'] = $ch['display_name'];
-						$stream['status'] = $ch['status'];
-						$stream['logo'] = $ch['logo'];
-					}
-				}
-				
 				break;
 			
 			// Own3d
@@ -369,8 +334,73 @@ class Builder {
 				$stream['own3d'] = true;
 				break;
 		}
+		
+		$onlineAt = $stream['remote_online_at'];
+		
+		if ($onlineAt) {
+			$stream['remote_online_at'] = $this->FormatDate(strtotime($onlineAt));
+			$stream['remote_online_ago'] = $this->dateToAgo($onlineAt);
+		}
+		
+		$form = [
+			'time' => Cases::PAST,
+			'person' => Cases::FIRST,
+			'number' => Cases::SINGLE,
+			'gender' => $stream['gender_id'],
+		];
+		
+		$stream['played'] = $this->cases->conjugation('играть', $form);
+		$stream['broadcasted'] = $this->cases->conjugation('транслировать', $form);
+		$stream['held'] = $this->cases->conjugation('вести', $form);
 
 		return $stream;
+	}
+	
+	public function updateStreamData($row, $log = false) {
+		$stream = $row;
+		
+		$id = $stream['stream_id'];
+		
+		switch ($stream['type']) {
+			// Twitch
+			case 1:
+				$data = $this->getTwitchStreamData($id);
+				$json = json_decode($data, true);
+				
+				if ($log) {
+					var_dump($json);
+				}
+				
+				if (isset($json['streams'][0])) {
+					$s = $json['streams'][0];
+
+					$stream['remote_online'] = 1;
+					$stream['remote_game'] = $s['game'];
+					$stream['remote_viewers'] = $s['viewers'];
+					
+					if (isset($s['channel'])) {
+						$ch = $s['channel'];
+
+						$stream['remote_title'] = $ch['display_name'];
+						$stream['remote_status'] = $ch['status'];
+						$stream['remote_logo'] = $ch['logo'];
+					}
+				}
+				else {
+					$stream['remote_online'] = 0;
+					$stream['remote_viewers'] = 0;
+				}
+				
+				break;
+			
+			// Own3d
+			case 2:
+				// move along
+				break;
+		}
+
+		// save
+		$this->db->saveStreamData($stream);
 	}
 
 	private function getTwitchStreamData($id) {
@@ -391,7 +421,6 @@ class Builder {
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);       
-		
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		
 		$data = curl_exec($ch);
@@ -421,5 +450,273 @@ class Builder {
 		});
 		
 		return $array;
+	}
+
+	public function BuildSortedStreams($rows) {
+		$streams = [];
+		
+		foreach ($rows as $row) {
+			if ($row['alive'] == 1) {
+				$stream = $this->BuildStream($row);
+			
+				$priorityGames = [
+					'world of warcraft',
+					'hearthstone',
+					'overwatch',
+					'heroes of the storm',
+					'starcraft',
+					'starcraft ii',
+					'warcraft iii',
+					'warcraft iii: the frozen throne',
+					'diablo iii',
+					'diablo iii: reaper of souls',
+					'diablo ii',
+					'diablo ii: lord of destruction',
+				];
+				
+				$game = strtolower($stream['remote_game']) ?? '';
+	
+				$stream['priority_game'] = in_array($game, $priorityGames) ? 1 : 0;
+				
+				$streams[] = $stream;
+			}
+		}
+			
+		$sorts = [
+			'remote_online' => [
+				'dir' => 'desc',
+			],
+			'priority' => [
+				'dir' => 'desc',
+			],
+			'priority_game' => [
+				'dir' => 'desc',
+			],
+			'remote_viewers' => [
+				'dir' => 'desc',
+			],
+			'title' => [
+				'dir' => 'asc',
+				'type' => 'string',
+			],
+		];
+		
+		$streams = $this->multiSort($streams, $sorts);
+		
+		return $streams;
+	}
+	
+	public function BuildOnlineStream() {
+		$rows = $this->db->GetStreams();
+		$streams = $this->BuildSortedStreams($rows);
+	
+		$onlineStreams = array_filter($streams, function($stream) { return $stream['remote_online'] == 1; });
+		$totalOnline = count($onlineStreams);
+	
+		if ($totalOnline > 0) {
+			$onlineStream = $onlineStreams[0];
+			$onlineStream['total_streams_online'] = $totalOnline . ' ' . $this->cases->caseForNumber('стрим', $totalOnline);
+		}
+		
+		return $onlineStream;
+	}
+	
+	// COMICS
+
+	function BuildComicSeries($row) {
+		$series = $row;
+
+		$series['page_url'] = $this->router->ComicSeries($series['alias']);
+
+		$comicRows = $this->db->GetComicIssues($series['id']);
+		$comicCount = count($comicRows);
+		
+		if ($comicCount > 0) {
+			$comicId = $comicRows[0]['id'];
+			$pageRows = $this->db->GetComicIssuePages($comicId);
+			
+			if (count($pageRows) > 0) {
+				$pageRow = $pageRows[0];
+				$series['cover_url'] = $this->router->ComicThumbImg($pageRow);
+			}
+		}
+		
+		$series['comic_count'] = $comicCount;
+		$series['comic_count_str'] = $comicCount . '&nbsp;' . $this->cases->caseForNumber('выпуск', $comicCount);
+
+		$series['publisher'] = $this->db->GetComicPublisher($series['publisher_id']);
+		
+		if ($series['name_ru'] == $series['name_en']) {
+			$series['name_en'] = null;
+		}
+
+		return $series;
+	}
+
+	function BuildComicStandalone($row) {
+		$comic = $row;
+
+		$comic['page_url'] = $this->router->ComicStandalone($comic['alias']);
+
+		$pageRows = $this->db->GetComicStandalonePages($comic['id']);
+		
+		if (count($pageRows) > 0) {
+			$pageRow = $pageRows[0];
+			$comic['cover_url'] = $this->router->ComicThumbImg($pageRow);
+		}
+
+		$comic['publisher'] = $this->db->GetComicPublisher($comic['publisher_id']);
+		$comic['issued_on'] = $this->FormatDate(strtotime($comic['issued_on']));
+
+		if ($comic['name_ru'] == $comic['name_en']) {
+			$comic['name_en'] = null;
+		}
+
+		return $comic;
+	}
+	
+	private function padNum($num) {
+		return str_pad($num, 2, '0', STR_PAD_LEFT);
+	}
+	
+	private function comicNum($num) {
+		return '#' . $num;
+	}
+	
+	private function pageNum($num) {
+		return $this->padNum($num);
+	}
+
+	function BuildComicIssue($row, $series) {
+		$comic = $row;
+
+		$comic['page_url'] = $this->router->ComicIssue($series['alias'], $comic['number']);
+
+		$pageRows = $this->db->GetComicIssuePages($comic['id']);
+		
+		if (count($pageRows) > 0) {
+			$pageRow = $pageRows[0];
+			$comic['cover_url'] = $this->router->ComicThumbImg($pageRow);
+		}
+		
+		$comic['number_str'] = $this->comicNum($comic['number']);
+		if ($comic['name_ru']) {
+			$comic['number_str'] .= ': ' . $comic['name_ru'];
+		}
+
+		$comic['issued_on'] = $this->FormatDate(strtotime($comic['issued_on']));
+
+		$prev = $this->db->GetComicIssuePrev($series['id'], $comic['number']);
+		$next = $this->db->GetComicIssueNext($series['id'], $comic['number']);
+		
+		if ($prev != null) {
+			$prev['page_url'] = $this->router->ComicIssue($series['alias'], $prev['number']);
+			$prev['number_str'] = $this->comicNum($prev['number']);
+			if ($prev['name_ru']) {
+				$prev['number_str'] .= ': ' . $prev['name_ru'];
+			}
+			
+			$comic['prev'] = $prev;
+		}
+		
+		if ($next != null) {
+			$next['page_url'] = $this->router->ComicIssue($series['alias'], $next['number']);
+			$next['number_str'] = $this->comicNum($next['number']);
+			if ($next['name_ru']) {
+				$next['number_str'] .= ': ' . $next['name_ru'];
+			}
+			
+			$comic['next'] = $next;
+		}
+
+		return $comic;
+	}
+	
+	function BuildComicIssuePage($row, $series, $comic) {
+		$page = $row;
+
+		$id = $page['id'];
+		
+		$page['url'] = $this->router->ComicPageImg($page);
+		$page['thumb'] = $this->router->ComicThumbImg($page);
+
+		$page['page_url'] = $this->router->ComicIssuePage($series['alias'], $comic['number'], $page['number']);
+		
+		$page['number_str'] = $this->pageNum($page['number']);
+
+		$prev = $this->db->GetComicIssuePagePrev($series['id'], $comic['number'], $page['number']);
+		$next = $this->db->GetComicIssuePageNext($series['id'], $comic['number'], $page['number']);
+		
+		if ($prev != null) {
+			$prev['page_url'] = $this->router->ComicIssuePage($series['alias'], $prev['comic_number'], $prev['number']);
+			$prev['comic_number_str'] = $this->comicNum($prev['comic_number']);
+			$prev['number_str'] = $this->pageNum($prev['number']);
+			
+			$page['prev'] = $prev;
+		}
+		
+		if ($next != null) {
+			$next['page_url'] = $this->router->ComicIssuePage($series['alias'], $next['comic_number'], $next['number']);
+			$next['comic_number_str'] = $this->comicNum($next['comic_number']);
+			$next['number_str'] = $this->pageNum($next['number']);
+			
+			$page['next'] = $next;
+		}
+
+		return $page;
+	}
+	
+	function BuildComicStandalonePage($row, $comic) {
+		$page = $row;
+
+		$id = $page['id'];
+		
+		$page['url'] = $this->router->ComicPageImg($page);
+		$page['thumb'] = $this->router->ComicThumbImg($page);
+
+		$page['page_url'] = $this->router->ComicStandalonePage($comic['alias'], $page['number']);
+		
+		$page['number_str'] = $this->pageNum($page['number']);
+
+		$prev = $this->db->GetComicStandalonePagePrev($id);
+		$next = $this->db->GetComicStandalonePageNext($id);
+		
+		if ($prev != null) {
+			$prev['page_url'] = $this->router->ComicStandalonePage($comic['alias'], $prev['number']);
+			$prev['number_str'] = $this->pageNum($prev['number']);
+			
+			$page['prev'] = $prev;
+		}
+		
+		if ($next != null) {
+			$next['page_url'] = $this->router->ComicStandalonePage($comic['alias'], $next['number']);
+			$next['number_str'] = $this->pageNum($next['number']);
+			
+			$page['next'] = $next;
+		}
+
+		return $page;
+	}
+	
+	private function dateToAgo($date) {
+		$now = new \DateTime;
+		$today = new \DateTime("today");
+		$yesterday = new \DateTime("yesterday");		
+		
+		$dt = new \DateTime($date);
+
+		if ($dt > $today) {
+			$str = 'сегодня';
+		}
+		elseif ($dt > $yesterday) {
+			$str = 'вчера';
+		}
+		else {
+			$interval = $dt->diff($now);
+			$days = $interval->d;
+			$str = $days . ' ' . $this->cases->caseForNumber('день', $days) . ' назад';
+		}
+		
+		return $str ?? 'неизвестно когда';
 	}
 }

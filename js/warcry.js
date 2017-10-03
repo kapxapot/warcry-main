@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(function() {
 	// colorbox
 	$('.colorbox').colorbox({rel:'colorbox', transition:'none', maxWidth: '90%', scalePhotos: 'true'});
 	
@@ -29,8 +29,6 @@ $(window).on("load", function() {
 	
 	    $(style).height(maxHeight);
 	};
-	
-	evenHeights(".stream-panel");
 });
 
 function Search(curobj) {

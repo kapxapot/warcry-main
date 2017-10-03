@@ -56,8 +56,8 @@
 	<link rel="alternate" type="application/rss+xml" title="Warcry.ru RSS" href="http://feeds.feedburner.com/warcryru" />
 	<link rel="search" href="/search.xml" type="application/opensearchdescription+xml" title="Warcry.ru"/>
 	
-	<?php if (isset($rel_prev)) echo "<link rel=\"prev\" href=\"{$rel_prev}\" />", PHP_EOL; ?>
-	<?php if (isset($rel_next)) echo "<link rel=\"next\" href=\"{$rel_next}\" />", PHP_EOL; ?>
+	<?php if ($rel_prev) echo "<link rel=\"prev\" href=\"{$rel_prev}\" />", PHP_EOL; ?>
+	<?php if ($rel_next) echo "<link rel=\"next\" href=\"{$rel_next}\" />", PHP_EOL; ?>
 
 	<!-- VK -->
 	<script type="text/javascript" src="//vk.com/js/api/openapi.js?78"></script>

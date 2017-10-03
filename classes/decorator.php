@@ -10,11 +10,13 @@ class BootstrapDecorator extends Decorator {
 	}
 	
 	function LocationBlock($link_array, $name) {
-		foreach ($link_array as $link) {
-			$links[] = array('link' => $link);
+		if (is_array($link_array)) {
+			foreach ($link_array as $link) {
+				$links[] = array('link' => $link);
+			}
+			
+			return array_reverse($links);
 		}
-		
-		return array_reverse($links);
 	}
 
 	function SublistBlock($articles) {
@@ -122,7 +124,7 @@ class BootstrapDecorator extends Decorator {
 			if (strlen($thumb) > 0) {
 				$imageText = "<a href=\"{$source}\" class=\"colorbox\">{$imageText}</a>";
 			}
-			
+
 			$imageText = "<div{$divClassText}>{$imageText}{$subText}</div>";
 		}
 

@@ -10,6 +10,14 @@ class BootstrapDataBase extends DataBase {
 	
 	protected $gallery_authors;
 	protected $gallery_pictures;
+	
+	protected $comic_series;
+	protected $comic_issues;
+	protected $comic_standalones;
+	protected $comic_publishers;
+	protected $comic_pages;
+	
+	protected $streams;
 
 	// const
 	protected $cache = [];
@@ -18,15 +26,23 @@ class BootstrapDataBase extends DataBase {
 	public function __construct($env) {
 		parent::__construct($env);
 
-		$this->forumforums = "forumforums";
-		$this->forumtopics = "forumtopics";
-		$this->forumposts = "forumposts";
-		$this->forumcore_tags = "forumcore_tags";
-		$this->forummembers = "forummembers";
-		$this->forumprofile_portal = "forumprofile_portal";
+		$this->forumforums = 'forumforums';
+		$this->forumtopics = 'forumtopics';
+		$this->forumposts = 'forumposts';
+		$this->forumcore_tags = 'forumcore_tags';
+		$this->forummembers = 'forummembers';
+		$this->forumprofile_portal = 'forumprofile_portal';
 
-		$this->gallery_authors = "gallery_authors";
-		$this->gallery_pictures = "gallery_pictures";
+		$this->gallery_authors = 'gallery_authors';
+		$this->gallery_pictures = 'gallery_pictures';
+		
+		$this->comic_series = 'comic_series';
+		$this->comic_issues = 'comic_issue';
+		$this->comic_standalones = 'comic_standalone';
+		$this->comic_publishers = 'comic_publisher';
+		$this->comic_pages = 'comic_page';
+		
+		$this->streams = 'warcry_streams_items';
 	}
 	
 	protected function ExecuteAssoc($query) {
@@ -38,7 +54,7 @@ class BootstrapDataBase extends DataBase {
 	}
 
 	// utility
-	protected function GetCachedCollection($name, $table, $query_extension = "", $order_by = null) {
+	protected function GetCachedCollection($name, $table, $query_extension = '', $order_by = null) {
 		if (!isset($this->cache[$name])) {
 			$query = "SELECT *{$query_extension} FROM {$table}";
 			if ($order_by != null) {
@@ -85,11 +101,11 @@ class BootstrapDataBase extends DataBase {
 		return $filter;
 	}
 	
-	public function GetLatestNews($limit, $game = null, $except_news_id = null) {
+	public function GetLatestNews($limit, $game = null, $except_news_id = null, $offset = 0) {
 		$forums_filter = $this->GetGameForumsFilter($game, "ft.");
 		$news_filter = ($except_news_id != null) ? " and ft.tid <> {$except_news_id}" : "";
 
-		$query = "SELECT ft.*, fp.post FROM {$this->forumtopics} ft inner join {$this->forumposts} fp on fp.topic_id = ft.tid WHERE ft.forum_id IN (select news_forum_id from {$this->warcry_game}){$forums_filter}{$news_filter} and fp.new_topic = 1 ORDER BY ft.start_date DESC LIMIT {$limit}";
+		$query = "SELECT ft.*, fp.post FROM {$this->forumtopics} ft inner join {$this->forumposts} fp on fp.topic_id = ft.tid WHERE ft.forum_id IN (select news_forum_id from {$this->warcry_game}){$forums_filter}{$news_filter} and fp.new_topic = 1 ORDER BY ft.start_date DESC LIMIT {$offset}, {$limit}";
 
 		return $this->ExecuteAssoc($query);
 	}
@@ -252,14 +268,14 @@ ORDER BY count DESC";
 	
 	public function GetGalleryPicturePrev($id) {
 		$query = "select pic1.id, pic1.comment from {$this->gallery_pictures} pic1
-			inner join {$this->gallery_pictures} pic2 on pic1.author_id = pic2.author_id and pic1.created_at > pic2.created_at where pic2.id = {$id} and pic2.published = 1 order by pic1.created_at limit 1";
+			inner join {$this->gallery_pictures} pic2 on pic1.author_id = pic2.author_id and pic1.created_at > pic2.created_at where pic2.id = {$id} and pic1.published = 1 order by pic1.created_at limit 1";
 
 		return $this->ExecuteArrayAssoc($query);
 	}
 	
 	public function GetGalleryPictureNext($id) {
 		$query = "select pic1.id, pic1.comment from {$this->gallery_pictures} pic1
-			inner join {$this->gallery_pictures} pic2 on pic1.author_id = pic2.author_id and pic1.created_at < pic2.created_at where pic2.id = {$id} and pic2.published = 1 order by pic1.created_at desc limit 1";
+			inner join {$this->gallery_pictures} pic2 on pic1.author_id = pic2.author_id and pic1.created_at < pic2.created_at where pic2.id = {$id} and pic1.published = 1 order by pic1.created_at desc limit 1";
 
 		return $this->ExecuteArrayAssoc($query);
 	}
@@ -270,5 +286,178 @@ left join {$this->forummembers} fm on fm.name = coalesce(u.forum_name, u.login)
 where u.id = {$id}";
 
 		return $this->ExecuteArrayAssoc($query);
+	}
+	
+	// COMICS
+	
+	public function GetComicPublisher($id) {
+		$query = "select * from {$this->comic_publishers} where id = {$id}";
+		return $this->ExecuteArrayAssoc($query);
+	}
+	
+	public function GetComicSeries($id = null) {
+		if ($id > 0) {
+			$query = "select * from {$this->comic_series} where id = {$id}";
+			
+			return $this->ExecuteArrayAssoc($query);
+		}
+		else {
+			$query = "select * from (
+select cs.*, (select max(issued_on) from {$this->comic_issues} where series_id = cs.id and published = 1) last_issued_on from {$this->comic_series} cs) select1
+where last_issued_on is not null
+order by last_issued_on desc";
+
+			return $this->ExecuteAssoc($query);
+		}
+	}
+
+	public function GetComicSeriesIdByAlias($alias) {
+		$alias = $this->Escape($alias);
+		$query = "select id from {$this->comic_series} where alias = '{$alias}'";
+		return $this->ExecuteScalar($query);
+	}
+	
+	public function GetComicStandalones() {
+		$query = "select * from {$this->comic_standalones} where published = 1 order by issued_on desc";
+		return $this->ExecuteAssoc($query);
+	}
+	
+	public function GetComicStandalone($id) {
+		$query = "select * from {$this->comic_standalones} where id = {$id}";
+		return $this->ExecuteArrayAssoc($query);
+	}
+	
+	public function GetComicStandaloneIdByAlias($alias) {
+		$alias = $this->Escape($alias);
+		$query = "select id from {$this->comic_standalones} where alias = '{$alias}'";
+		return $this->ExecuteScalar($query);
+	}
+	
+	public function GetComicIssues($series_id) {
+		$query = "select * from {$this->comic_issues} where series_id = {$series_id} and published = 1 order by number";
+		return $this->ExecuteAssoc($query);
+	}
+	
+	public function GetComicIssue($series_id, $number) {
+		$query = "select * from {$this->comic_issues} where series_id = {$series_id} and number = {$number}";
+		return $this->ExecuteArrayAssoc($query);
+	}
+
+	public function GetComicIssuePages($comic_id) {
+		$query = "select * from {$this->comic_pages} where comic_issue_id = {$comic_id} and published = 1 order by number";
+		return $this->ExecuteAssoc($query);
+	}
+
+	public function GetComicIssuePage($comic_id, $number) {
+		$query = "select * from {$this->comic_pages} where comic_issue_id = {$comic_id} and number = {$number}";
+		return $this->ExecuteArrayAssoc($query);
+	}
+	
+	public function GetComicStandalonePages($comic_standalone_id) {
+		$query = "select * from {$this->comic_pages} where comic_standalone_id = {$comic_standalone_id} and published = 1 order by number";
+		return $this->ExecuteAssoc($query);
+	}
+
+	public function GetComicStandalonePage($comic_id, $number) {
+		$query = "select * from {$this->comic_pages} where comic_standalone_id = {$comic_id} and number = {$number}";
+		return $this->ExecuteArrayAssoc($query);
+	}
+	
+	public function GetComicStandalonePagePrev($id) {
+		$query = "select page1.id, page1.number from {$this->comic_pages} page1
+			inner join {$this->comic_pages} page2 on
+				page1.comic_standalone_id = page2.comic_standalone_id
+				and page1.number < page2.number
+			where page2.id = {$id} and page1.published = 1
+			order by page1.number desc limit 1";
+
+		return $this->ExecuteArrayAssoc($query);
+	}
+	
+	public function GetComicStandalonePageNext($id) {
+		$query = "select page1.id, page1.number from {$this->comic_pages} page1
+			inner join {$this->comic_pages} page2 on
+				page1.comic_standalone_id = page2.comic_standalone_id
+				and page1.number > page2.number
+			where page2.id = {$id} and page1.published = 1
+			order by page1.number limit 1";
+
+		return $this->ExecuteArrayAssoc($query);
+	}
+	
+	public function GetComicIssuePagePrev($series_id, $comic_number, $page_number) {
+		$query = "select cp.id, cp.number, ci.number comic_number from {$this->comic_issues} ci
+					inner join {$this->comic_pages} cp on cp.comic_issue_id = ci.id
+					where ci.series_id = {$series_id}
+						and ci.published = 1
+						and (ci.number < {$comic_number} or (ci.number = {$comic_number} and cp.number < {$page_number}))
+					order by ci.number desc, cp.number desc
+					limit 1";
+
+		return $this->ExecuteArrayAssoc($query);
+	}
+	
+	public function GetComicIssuePageNext($series_id, $comic_number, $page_number) {
+		$query = "select cp.id, cp.number, ci.number comic_number from {$this->comic_issues} ci
+					inner join {$this->comic_pages} cp on cp.comic_issue_id = ci.id
+					where ci.series_id = {$series_id}
+						and ci.published = 1
+						and (ci.number > {$comic_number} or (ci.number = {$comic_number} and cp.number > {$page_number}))
+					order by ci.number, cp.number
+					limit 1";
+
+		return $this->ExecuteArrayAssoc($query);
+	}
+	
+	public function GetComicIssuePrev($series_id, $comic_number) {
+		$query = "select * from {$this->comic_issues}
+					where series_id = {$series_id} and published = 1 and number < {$comic_number}
+					order by number desc
+					limit 1";
+
+		return $this->ExecuteArrayAssoc($query);
+	}
+	
+	public function GetComicIssueNext($series_id, $comic_number) {
+		$query = "select * from {$this->comic_issues}
+					where series_id = {$series_id} and published = 1 and number > {$comic_number}
+					order by number
+					limit 1";
+
+		return $this->ExecuteArrayAssoc($query);
+	}
+	
+	// STREAMS
+	
+    function GetStreams($aliveInterval = '1 MONTH') {
+        $query = "select *, coalesce(DATE_ADD(remote_online_at, INTERVAL {$aliveInterval}) > now(), 0) alive from {$this->streams} where published = 1 order by remote_viewers desc";
+        
+        return $this->ExecuteAssoc($query);
+    }
+    
+    function GetStream($id, $aliveInterval = '1 MONTH') {
+        $alias = $this->Escape($id);
+        $query = "select *, coalesce(DATE_ADD(remote_online_at, INTERVAL {$aliveInterval}) > now(), 0) alive from {$this->streams} where (stream_alias = '{$id}' or (stream_alias is null and stream_id = '{$id}')) AND published = 1";
+        
+        return $this->ExecuteArrayAssoc($query);
+    }
+	
+	public function saveStreamData($stream) {
+		if ($stream['remote_online'] == 1) {
+			$onlineChunk = ', remote_online_at = now()';
+		}
+		
+        $query = "update {$this->streams} set
+        	remote_viewers = {$stream['remote_viewers']},
+        	remote_title = '{$this->Escape($stream['remote_title'])}',
+        	remote_game = '{$this->Escape($stream['remote_game'])}',
+        	remote_status = '{$this->Escape($stream['remote_status'])}',
+        	remote_logo = '{$this->Escape($stream['remote_logo'])}',
+        	remote_online = {$stream['remote_online']},
+        	remote_updated_at = now()
+        	{$onlineChunk}
+        	where id = {$stream['id']}";
+        
+        return $this->Execute($query);
 	}
 }

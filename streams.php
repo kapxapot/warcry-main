@@ -1,7 +1,6 @@
 <?php
 
-require_once __DIR__."/common.php";
-require_once "{$folders['phplive']}streams.php";
+require_once __DIR__ . "/common.php";
 
 $id = filter_input(INPUT_GET, 'id');
 
@@ -19,31 +18,11 @@ if ($id) {
 else {
 	$title = $settings->streams_title;
 	
-	$streams = [];
-	
 	$rows = $db->GetStreams();
-	
-	foreach ($rows as $row) {
-		$streams[] = $builder->BuildStream($row);
-	}
-		
-	$sorts = [
-		'online' => [
-			'dir' => 'desc',
-		],
-		'viewers' => [
-			'dir' => 'desc',
-		],
-		'title' => [
-			'dir' => 'asc',
-			'type' => 'string',
-		],
-	];
-	
-	$streams = $builder->multiSort($streams, $sorts);
+	$streams = $builder->BuildSortedStreams($rows);
 }
 
-include __DIR__."/header.php";
+include __DIR__ . "/header.php";
 
 if ($id) {
 	$tpl = new SmartTemplate("{$folders['templates']}streams/stream.tpl");
@@ -69,4 +48,4 @@ else {
 	$tpl->output();
 }
 
-include __DIR__."/footer.php";
+include __DIR__ . "/footer.php";

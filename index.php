@@ -10,17 +10,22 @@
 		$game = $db->GetGame($game_id);
     }
 
-	$fopt = [ 'default' => $settings->news_limit ];
-	$news_limit = filter_input(INPUT_GET, 'newslimit', FILTER_VALIDATE_INT, [ 'options' => $fopt ]);
+	$offset_opt = [ 'default' => 0 ];
+	$limit_opt = [ 'default' => $settings->news_limit ];
 
-	$news_rows = $db->GetLatestNews($news_limit, $game);
-	
+	$news_offset = filter_input(INPUT_GET, 'offset', FILTER_VALIDATE_INT, [ 'options' => $offset_opt ]);
+	$news_limit = filter_input(INPUT_GET, 'limit', FILTER_VALIDATE_INT, [ 'options' => $limit_opt ]);
+
+	$news_rows = $db->GetLatestNews($news_limit, $game, null, $news_offset);
+
 	foreach ($news_rows as $row) {
 		$news[] = $builder->BuildNews($row);
 	}
 
 	$forum_topics = $builder->BuildForumTopics($game);
 	$articles = $builder->BuildArticles($game);
+	
+	$online_stream = $builder->BuildOnlineStream();
 
 	include __DIR__."/header.php";
 

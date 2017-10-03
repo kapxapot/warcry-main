@@ -89,6 +89,7 @@
 	$tpl->assign('articles', $articles);
 	$tpl->assign('forum_topics', $forum_topics);
 	$tpl->assign('latest_news', $latest_news);
+	$tpl->assign('online_stream', $online_stream);
 	$tpl->output();
 ?>
 
@@ -143,7 +144,7 @@ if (isset($index)) {
       <div class="container dark">
         <div class="row">
           <ul class="nav nav-pills">
-            <li><a href="/links/">Ссылки</a></li>
+            <li><a href="/article/Links">Ссылки</a></li>
             <?php /*<li><a href="/downloads/">Файлы</a></li>
             <li><a href="/tag/">Теги</a></li>*/ ?>
             <li><a href="/map/">Карта сайта</a></li>

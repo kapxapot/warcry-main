@@ -5,6 +5,9 @@
   	<div class="panel-body breadcrumbs">
   		<ol class="breadcrumb">
   			<li><a href="/">{sitename}</a></li>
+  			<!-- BEGIN breadcrumbs -->
+  			<li>{link}</li>
+  			<!-- END breadcrumbs -->
   			<li class="active">{title}</li>
 		</ol>
 	</div>

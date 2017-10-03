@@ -9,12 +9,14 @@ require_once "{$folders['classes']}parser.php";
 
 require_once "{$folders['classes']}router.php";
 require_once "{$folders['classes']}builder.php";
+require_once "{$folders['classes']}cases.php";
 
 require_once "{$folders['smarty']}post_parser.php";
 
 class BootstrapEnvironment extends Environment {
 	public $router;
 	public $builder;
+	public $cases;
 	
 	public $forum_parser;
 
@@ -30,6 +32,7 @@ class BootstrapEnvironment extends Environment {
 		// further init
 		$this->router = new Router($this);
 		$this->builder = new Builder($this);
+		$this->cases = new Cases($this);
 		
 		$this->forum_parser = new post_parser();
 	}

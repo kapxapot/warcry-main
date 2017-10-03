@@ -67,7 +67,7 @@ class Router {
 	public function DisqusGalleryAuthor($id) {
 		return $this->IndexUrl("gallery/author.php?author_id={$id}");
 	}
-	
+
 	// forum
 	public function ForumTag($text) {
 		return $this->ForumUrl("app=core&module=search&do=search&search_tags=".urlencode($text)."&search_app=forums");
@@ -136,5 +136,36 @@ class Router {
 	// paging
 	function Page($base, $page) {
 		return $base.($page == 1 ? "" : "?page={$page}");
+	}
+	
+	// comics
+	public function ComicSeries($alias) {
+		return $this->settings->comics_index."/series/{$alias}";
+	}
+
+	public function ComicIssue($alias, $comicNumber) {
+		return $this->settings->comics_index."/series/{$alias}/{$comicNumber}";
+	}
+
+	public function ComicIssuePage($alias, $comicNumber, $pageNumber) {
+		return $this->settings->comics_index."/series/{$alias}/{$comicNumber}/{$pageNumber}";
+	}
+
+	public function ComicStandalone($alias) {
+		return $this->settings->comics_index."/{$alias}";
+	}
+
+	public function ComicStandalonePage($alias, $pageNumber) {
+		return $this->settings->comics_index."/{$alias}/{$pageNumber}";
+	}
+
+	public function ComicPageImg($page) {
+		$ext = $this->getExtension($page['type']);
+		return $this->settings->comics_pages_index."/{$page['id']}.{$ext}";
+	}
+	
+	public function ComicThumbImg($page) {
+		$ext = $this->getExtension($page['type']);
+		return $this->settings->comics_thumbs_index."/{$page['id']}.{$ext}";
 	}
 }

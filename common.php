@@ -1,6 +1,8 @@
 <?php
 
-if (isset($_GET['debug'])) {
+$debug = filter_input(INPUT_GET, 'debug');
+
+if (isset($debug)) {
 	error_reporting(E_ALL & ~E_NOTICE);
 	ini_set("display_errors", 1);
 }
@@ -26,7 +28,10 @@ $settings = $env->settings;
 $db = $env->db;
 $builder = $env->builder;
 $router = $env->router;
+$cases = $env->cases;
 
 $short_site_description = 'World of Warcraft, Diablo III, Hearthstone, Overwatch';
 $logo = '/images/text_logo_4.png';
 $twitter_card_image = 'http://warcry.ru' . $logo;
+
+$WOW = 1;

@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__."/common.php";
+require_once __DIR__ . "/common.php";
 
 $title = $settings->gallery_title;
 
@@ -12,7 +12,9 @@ foreach ($rows as $row) {
 	$authors[] = $builder->BuildGalleryAuthor($row);
 }
 
-include __DIR__."/header.php";
+$online_stream = $builder->BuildOnlineStream();
+
+include __DIR__ . "/header.php";
 
 $tpl = new SmartTemplate("{$folders['templates']}gallery/index.tpl");
 $tpl->assign('sitename', $sitename);
@@ -27,4 +29,4 @@ $tpl->assign('forum_topic', $router->ForumTopic(3443));
 
 $tpl->output();
 
-include __DIR__."/footer.php";
+include __DIR__ . "/footer.php";
