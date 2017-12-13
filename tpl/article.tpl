@@ -18,7 +18,17 @@
   		<!-- BEGIN sub_articles -->{link}<!-- END sub_articles -->
 	</div>
 	<!-- ENDIF -->
-	{contents}
+	<!-- IF contents -->
+	<div class="panel-body contents">
+  		<div class="contents-header">Содержание:</div>
+  		<div class="contents-body">
+  			<!-- BEGIN contents -->
+  				{link}
+  			<!-- END contents -->
+  		</div>
+	</div>
+	<!-- ENDIF -->
+	
   	<div class="panel-body" id="article">
     	{text}
     </div>

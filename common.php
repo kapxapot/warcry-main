@@ -32,6 +32,6 @@ $cases = $env->cases;
 
 $short_site_description = 'World of Warcraft, Diablo III, Hearthstone, Overwatch';
 $logo = '/images/text_logo_4.png';
-$twitter_card_image = 'http://warcry.ru' . $logo;
+$twitter_card_image = 'http://warcry.ru/images/social_logo.jpg';
 
 $WOW = 1;

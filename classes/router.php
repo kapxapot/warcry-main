@@ -51,14 +51,14 @@ class Router {
 	
 	// disqus
 	public function DisqusNews($id) {
-		return $this->IndexUrl("news.php?id={$id}");
+		return $this->IndexUrl("news/{$id}");
 	}
 	
 	public function DisqusArticle($id, $cat = null) {
-		$link = "article.php?id={$id}";
+		$link = "article/{$id}";
 		
 		if ($cat != null) {
-			$link .= "&cat={$cat}";
+			$link .= "/{$cat}";
 		}
 
 		return $this->IndexUrl($link);

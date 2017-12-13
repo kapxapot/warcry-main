@@ -56,7 +56,11 @@ if (count($article->block_sublist) > 0) {
 }
 
 if (count($article->block_contents) > 0) {
-	$tpl->assign('contents', $article->block_contents);
+	$contents = array_map(function($link) {
+		return [ 'link' => $link ];
+	}, $article->block_contents);
+
+	$tpl->assign('contents', $contents);
 }
 
 $tpl->assign('title', $title);

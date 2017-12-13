@@ -1,7 +1,7 @@
-# Warcry.ru / Main
+# Warcry.ru / Main [Discontinued]
 
-The main site at Warcry.ru.
+The old standalone version of main site at Warcry.ru. Now discontinued.
 
-Uses PHP, Smarty, Bootstrap.
+Uses PHP, Smarty, Bootstrap 3.
 
-http://warcry.ru
+Formerly http://warcry.ru.

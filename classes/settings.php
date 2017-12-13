@@ -31,4 +31,7 @@ class BootstrapSettings extends Settings {
 	public $date_format = "%d.%m.%Y";
 	
 	public $twitch_client_id = 'your twitch key';
+	public $telegram_bot_token = 'your telegram bot token';
+	public $telegram_chat_id = 'your telegram chat id';
+	public $warcry_channel_id = '@warcry_ru';
 }

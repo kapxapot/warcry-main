@@ -102,10 +102,13 @@ class BootstrapDataBase extends DataBase {
 	}
 	
 	public function GetLatestNews($limit, $game = null, $except_news_id = null, $offset = 0) {
-		$forums_filter = $this->GetGameForumsFilter($game, "ft.");
 		$news_filter = ($except_news_id != null) ? " and ft.tid <> {$except_news_id}" : "";
+		
+		if ($game) {
+			$game_filter = " where id = {$game['id']}";
+		}
 
-		$query = "SELECT ft.*, fp.post FROM {$this->forumtopics} ft inner join {$this->forumposts} fp on fp.topic_id = ft.tid WHERE ft.forum_id IN (select news_forum_id from {$this->warcry_game}){$forums_filter}{$news_filter} and fp.new_topic = 1 ORDER BY ft.start_date DESC LIMIT {$offset}, {$limit}";
+		$query = "SELECT ft.*, fp.post FROM {$this->forumtopics} ft inner join {$this->forumposts} fp on fp.topic_id = ft.tid WHERE ft.forum_id IN (select news_forum_id from {$this->warcry_game}{$game_filter}){$news_filter} and fp.new_topic = 1 ORDER BY ft.start_date DESC LIMIT {$offset}, {$limit}";
 
 		return $this->ExecuteAssoc($query);
 	}

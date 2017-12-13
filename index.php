@@ -22,6 +22,7 @@
 		$news[] = $builder->BuildNews($row);
 	}
 
+	//$latest_news = $builder->BuildLatestNews($game);
 	$forum_topics = $builder->BuildForumTopics($game);
 	$articles = $builder->BuildArticles($game);
 	

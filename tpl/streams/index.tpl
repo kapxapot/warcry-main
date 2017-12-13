@@ -13,9 +13,9 @@
 		<div id="streams" class="flex-wrapper">
 <!-- BEGIN streams -->
 			<div class="flex-item flex-item-shaded">
-			    <!-- IF img_url -->
+			    <!-- IF large_img_url -->
 			    	<div class="stream-image">
-				    	<a href="{page_url}"><img class="card-image" src="{img_url}" /></a>
+				    	<a href="{page_url}"><img class="card-image" src="{large_img_url}" /></a>
 			    		<span class="viewers">
 			    			<!-- IF remote_online -->
 			    				<span class="glyphicon glyphicon-user" aria-hidden="true"></span> {remote_viewers}

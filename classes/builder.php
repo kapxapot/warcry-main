@@ -69,9 +69,10 @@ class Builder {
 		];
 	}
 
-	function BuildNewsLink($row, $game) {
+	function BuildNewsLink($row) {
 		$id = $row['tid'];
 		$title = DecodeTopicTitle($row['title']);
+		$game = $this->db->GetGameByForumId($row['forum_id']);
 
 		return [
 			"title" => $title,
@@ -112,7 +113,7 @@ class Builder {
 		$rows = $this->db->GetLatestNews($limit, $game, $except_news_id);
 		
 		foreach ($rows as $row) {
-			$news[] = $this->BuildNewsLink($row, $game);
+			$news[] = $this->BuildNewsLink($row);
 		}
 		
 		return $news;
@@ -356,7 +357,7 @@ class Builder {
 		return $stream;
 	}
 	
-	public function updateStreamData($row, $log = false) {
+	public function updateStreamData($row, $log = false, $notify = false) {
 		$stream = $row;
 		
 		$id = $stream['stream_id'];
@@ -374,6 +375,8 @@ class Builder {
 				if (isset($json['streams'][0])) {
 					$s = $json['streams'][0];
 
+					$streamStarted = ($stream['remote_online'] == 0);
+
 					$stream['remote_online'] = 1;
 					$stream['remote_game'] = $s['game'];
 					$stream['remote_viewers'] = $s['viewers'];
@@ -384,6 +387,11 @@ class Builder {
 						$stream['remote_title'] = $ch['display_name'];
 						$stream['remote_status'] = $ch['status'];
 						$stream['remote_logo'] = $ch['logo'];
+					}
+					
+					if ($notify && $streamStarted /*&& $stream['channel'] == 1*/) {
+						$this->notifyTelegram("<a href=\"http://twitch.tv/{$id}\">{$stream['remote_title']}</a> играет в <b>{$s['game']}</b>
+{$stream['remote_status']}");
 					}
 				}
 				else {
@@ -402,16 +410,48 @@ class Builder {
 		// save
 		$this->db->saveStreamData($stream);
 	}
+	
+	private function notifyTelegram($message) {
+		$botToken = $this->settings->telegram_bot_token;
+		//$chatId = $this->settings->telegram_chat_id;
+		$warcryChannelId = $this->settings->warcry_channel_id;
+		
+		$this->curlTelegramSendMessage($botToken, $warcryChannelId, $message);
+		//$this->curlTelegramSendMessage($botToken, $chatId, $message);
+	}
+
+	private function curlTelegramSendMessage($botToken, $chatId, $message) {
+		$url = "https://api.telegram.org/bot{$botToken}/sendMessage";
+		$params = [
+		    'chat_id' => $chatId,
+		    'text' => $message,
+		    'parse_mode' => 'html',
+		];
+		
+		$ch = curl_init();
+		
+		curl_setopt($ch, CURLOPT_HEADER, false);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		
+		$result = curl_exec($ch);
+		curl_close($ch);
+		
+		return $result;
+	}
 
 	private function getTwitchStreamData($id) {
 		$url = "https://api.twitch.tv/kraken/streams?channel={$id}";
 		$clientId = $this->settings->twitch_client_id;
-		$data = $this->curlGet($url, $clientId);
+		$data = $this->curlGetFromTwitch($url, $clientId);
 
 		return $data;
 	}
 
-	private function curlGet($url, $clientId) {
+	private function curlGetFromTwitch($url, $clientId) {
 		$ch = curl_init();
 
 		$headers = [ "Client-ID: {$clientId}" ];

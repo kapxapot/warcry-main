@@ -1,5 +1,7 @@
 <?php
 
+//namespace App\Legacy\Bootstrap;
+
 class BootstrapDecorator extends Decorator {
 	function PadLeft($text, $pad) {
 		if ($pad > 0) {
@@ -9,7 +11,7 @@ class BootstrapDecorator extends Decorator {
 		return "<div{$class}>{$text}</div>";
 	}
 	
-	function LocationBlock($link_array, $name) {
+	public function LocationBlock($link_array, $name) {
 		if (is_array($link_array)) {
 			foreach ($link_array as $link) {
 				$links[] = array('link' => $link);
@@ -36,22 +38,13 @@ class BootstrapDecorator extends Decorator {
 	}
 	
 	function ContentsBlock($list) {
-		$text = "";
-		
-		if (count($list) > 0) {
-			$links = implode($list);
-			
-			$text .= "<div class=\"panel-body contents\">
-  						<div class=\"contents-header\">Содержание:</div>
-  						<div class=\"contents-body\">{$links}</div>
-					</div>";
-		}
-
-		return $text;
+		return array_map(function($link) {
+			return [ 'link' => $link ];
+		}, $list);
 	}
 
-	function ArticlePageBlock($article) {
-		return $article->block_text.$article->block_tags;
+	public function ArticlePageBlock($article) {
+		return $article->block_text . $article->block_tags;
 	}
 
 	function NoIndexUrl($url, $text, $title = '', $style = '') {

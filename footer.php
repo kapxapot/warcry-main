@@ -39,11 +39,11 @@
 				?>
 				  (function() {
 				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-				   dsq.src = 'http://warcryru.disqus.com/embed.js';
+				   dsq.src = 'http://warcry-ru.disqus.com/embed.js';
 				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
 				  })();
 				</script>
-				<noscript>Включите JavaScript для просмотра <a href="http://disqus.com/?ref_noscript=warcryru">комментариев Disqus</a>.</noscript>
+				<noscript>Включите JavaScript для просмотра <a href="http://disqus.com/?ref_noscript">комментариев Disqus</a>.</noscript>
 				<a href="http://disqus.com" class="dsq-brlink">комментарии работают на <span class="logo-disqus">Disqus</span></a>
 				</noindex>
 <!-- Disqus End -->
@@ -70,7 +70,7 @@
         <div id="sidebar" class="<? if (!$oneColumn) echo "col-md-3 "; ?>col-xs-12">
 <!-- Search -->
 			<div id="search">
-	            <form class="form-inline" method="get" action="http://www.google.com/search" onSubmit="Search(this)">
+	            <form class="form-inline" method="get" action="http://www.google.com/search" onSubmit="search(this)">
 					<input name="q" type="hidden" />
 				  <div class="input-group">
 					<input name="qfront" type="search" required class="form-control" placeholder="Искать..." maxlength="255" />
@@ -114,7 +114,11 @@ if (isset($index)) {
 			<div id="vk">
 				<div id="vk_groups" class="center"></div>
 				<script type="text/javascript">
-				VK.Widgets.Group("vk_groups", {mode: 0, width: "200", height: "290"}, 18630942);
+					$(function() {
+						loadScript('//vk.com/js/api/openapi.js?150', function() {
+							VK.Widgets.Group("vk_groups", { mode: 0, width: "240", height: "290" }, 18630942);
+						});
+					});
 				</script>
 			</div>
 <?php
@@ -158,7 +162,14 @@ if (isset($index)) {
 		<!-- social links -->
 		<div><?php echo $sitename; ?> в социальных сетях и сервисах:</div>
 		<div id="social-links">
-			<a href="http://twitter.com/warcry_ru"><a href="http://feeds.feedburner.com/warcryru"><img src="/images/sharelarge/rss.png" alt="Наши новости в формате RSS" /></a> <img src="/images/sharelarge/twitter.png" alt="Мы в Twitter" /></a> <a href="http://vk.com/warcry_ru"><img src="/images/sharelarge/vk.png" alt="Мы ВКонтакте" /></a> <a href="https://www.facebook.com/pages/Warcryru/240114022746294"><img src="/images/sharelarge/facebook.png" alt="Мы в Facebook" /></a> <a href="https://plus.google.com/u/0/b/118030010104701570479/118030010104701570479/posts"><img src="/images/sharelarge/googleplus.png" alt="Мы в Google+" /></a> <a href="http://youtube.com/user/WarcryCast/videos"><img src="/images/sharelarge/youtube.png" alt="Мы в YouTube" /></a> <a href="http://twitch.tv/warcryru"><img src="/images/sharelarge/twitch.png" alt="Мы на Twitch" /></a>
+			<a href="http://feeds.feedburner.com/warcryru"><img src="/images/sharelarge/rss.png" alt="Наши новости в формате RSS" /></a>
+			<a href="https://eu.blizzard.com/invite/ePB7oUZgw"><img src="/images/sharelarge/battlenet.png" alt="Мы в Blizzard Battle.net" /></a>
+			<a href="http://twitter.com/warcry_ru"><img src="/images/sharelarge/twitter.png" alt="Мы в Twitter" /></a>
+			<a href="http://vk.com/warcry_ru"><img src="/images/sharelarge/vk.png" alt="Мы ВКонтакте" /></a>
+			<!--a href="https://www.facebook.com/pages/Warcryru/240114022746294"><img src="/images/sharelarge/facebook.png" alt="Мы в Facebook" /></a-->
+			<!--a href="https://plus.google.com/u/0/b/118030010104701570479/118030010104701570479/posts"><img src="/images/sharelarge/googleplus.png" alt="Мы в Google+" /></a-->
+			<a href="http://youtube.com/user/WarcryCast/videos"><img src="/images/sharelarge/youtube.png" alt="Мы в YouTube" /></a>
+			<a href="http://twitch.tv/warcryru"><img src="/images/sharelarge/twitch.png" alt="Мы на Twitch" /></a>
 		</div>
      
         <div>Все права защищены. &copy; 2004—<?php echo date("Y"); ?> <a href="mailto:<?php echo $teammail; ?>"><?php echo $sitename; ?></a></div>
@@ -168,8 +179,6 @@ if (isset($index)) {
     </div>
 
     <!-- scripts -->
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-
     <script src="<?php echo $folders['bootstrap']; ?>js/bootstrap.min.js"></script>
     <script src="<?php echo $folders['colorbox']; ?>jquery.colorbox.js"></script>
     <script src="<?php echo $folders['absolute']; ?>js/warcry.js"></script>

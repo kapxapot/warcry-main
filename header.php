@@ -59,8 +59,8 @@
 	<?php if ($rel_prev) echo "<link rel=\"prev\" href=\"{$rel_prev}\" />", PHP_EOL; ?>
 	<?php if ($rel_next) echo "<link rel=\"next\" href=\"{$rel_next}\" />", PHP_EOL; ?>
 
-	<!-- VK -->
-	<script type="text/javascript" src="//vk.com/js/api/openapi.js?78"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
 	<!-- Google Analytics -->
 	<script>
 	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
